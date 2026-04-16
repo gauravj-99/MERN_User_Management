@@ -15,11 +15,12 @@ exports.addUser=(req,res)=>{
     res.json(newUser);
 };
 exports.updateUser = (req,res)=>{
+    console.log("editid:",iditid);
     const{id}=req.params;
     const{ name, email}=req.body;
     users=users.map((user)=>
     user.id===id?{...user,name,email}:user);
-    res.json({message:'update done'});
+    res.json({message:"update done"});
 };
 exports.deleteUser=(req,res)=>{
     const{id}=req.params;

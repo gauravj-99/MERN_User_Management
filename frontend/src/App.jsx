@@ -1,3 +1,5 @@
+
+import './index.css';
 import { useEffect, useState } from "react";
 import axios from "axios";
 const API ="http://localhost:5000/users";
@@ -6,6 +8,7 @@ function App(){
   const[users,setUsers]=useState([]);
   const[name,setName]=useState("");
   const[email,setEmail]=useState("");
+  const[editid,setEditid]=useState(null);
 
   const fetchUsers=async()=>{
     const res=await axios.get(API);
@@ -21,11 +24,23 @@ function App(){
       alert("Please Fill Detail");
       return;
     }
-    await axios.post(API, {name, email});
+    try{
+      if(editid!==null){
+      await axios.put(`${API}/${editid}`, {name, email});
+      setEditid(null);
+    }
+    else{
+      await axios.post(API, {name, email});
+
+    }
     setName("");
     setEmail("");
     fetchUsers();
+  }catch(error){
+    console.log(error);
+    }
   };
+    
 
   const deleteUser= async(id)=>{
     console.log("delete clicked:", id)
@@ -33,7 +48,7 @@ function App(){
     await fetchUsers();
   };
   return (
-    <div style={{padding: "20px"}}>
+    <div className="container">
       <h1>USER MANAGEMENT LIST</h1>
 
       <input 
@@ -48,15 +63,22 @@ function App(){
       onChange={(e)=>setEmail(e.target.value)}
       />
 
-      <button onClick={addUser}>Add User</button>
+      <button className="add-btn" onClick={addUser}>{editid ? "Update User" : "Add User"}</button>
 
       <hr></hr>
       {users.map((user)=>{
         console.log("user:",user);
         return(
-        <div key={user.id}>
+        <div key={user._id || user.id}>
           {user.name}-{user.email}
-          <button onClick={()=>deleteUser(user.id || user._id)}>Delete</button>
+          <button className="delete-btn" onClick={()=>deleteUser(user._id || user.id)}>Delete</button>
+
+          <button className="edit-btn" onClick={()=>{
+            console.log("editing user: ",user);
+            setName(user.name);
+            setEmail(user.email);
+            setEditid(user._id || user.id);
+          }}>Edit</button>
         </div>
         );
       })}
